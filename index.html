@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>考研背书通关 · 上岸打怪</title>
+<style>
+:root{
+  --bg:#eef3fb; --card:#ffffff; --ink:#2b3550; --muted:#7c86a3;
+  --blue:#4f7cff; --blue2:#6c63ff; --gold:#ffb020; --red:#ff5d6c;
+  --green:#2fbf71; --line:#e3e9f5;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  background:linear-gradient(160deg,#eaf1ff 0%,#f6f3ff 55%,#fff3e6 100%);
+  color:var(--ink); min-height:100vh; overflow-x:hidden;
+}
+.wrap{max-width:480px;margin:0 auto;padding:10px 12px 40px;position:relative;}
+
+/* ===== 顶部角色栏 ===== */
+.hero{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:18px;
+  background:rgba(255,255,255,.85);box-shadow:0 6px 20px rgba(80,90,150,.12);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);position:relative;
+}
+.avatar{
+  width:56px;height:56px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:32px;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.14);overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.hat{position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:18px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));}
+.bubble{
+  flex:1;min-width:0;background:#fff;border-radius:14px 14px 14px 4px;padding:9px 12px;
+  font-size:13.5px;line-height:1.5;box-shadow:0 2px 8px rgba(80,90,150,.1);position:relative;
+}
+.bubble b{color:var(--blue);}
+.bubble .name{font-size:11px;color:var(--muted);display:block;margin-bottom:2px;}
+
+/* ===== 玩家面板 ===== */
+.panel{
+  margin-top:12px;border-radius:18px;padding:14px 14px 12px;background:linear-gradient(135deg,#5b7bff,#7a5bff);
+  color:#fff;box-shadow:0 8px 24px rgba(90,110,230,.28);
+}
+.panel .row1{display:flex;align-items:center;justify-content:space-between;}
+.panel .lv{font-size:20px;font-weight:800;letter-spacing:.5px;}
+.panel .gold{background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px;font-size:13px;font-weight:600;}
+.bars{margin-top:11px;}
+.bar{height:11px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden;margin-top:6px;}
+.bar>i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#ffe06b,#ffb020);transition:width .4s ease;}
+.bar.hp>i{background:linear-gradient(90deg,#7dffa3,#2fbf71);}
+.bar.exp>i{background:linear-gradient(90deg,#8be0ff,#4f9bff);}
+.meta{display:flex;justify-content:space-between;font-size:11.5px;opacity:.92;margin-top:5px;}
+
+/* ===== 标题区 ===== */
+.sec-title{margin:18px 2px 10px;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:space-between;}
+.sec-title span{color:var(--muted);font-weight:500;font-size:12.5px;}
+
+/* ===== 关卡列表 ===== */
+.levels{display:flex;flex-direction:column;gap:11px;}
+.lv-item{
+  display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:13px 14px;
+  box-shadow:0 4px 14px rgba(80,90,150,.1);cursor:pointer;transition:transform .12s;border:2px solid transparent;
+}
+.lv-item:active{transform:scale(.98);}
+.lv-item.locked{opacity:.55;filter:grayscale(.4);cursor:not-allowed;}
+.lv-item.current{border-color:var(--blue);}
+.monster{
+  width:54px;height:54px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:30px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);
+}
+.lv-info{flex:1;min-width:0;}
+.lv-info .t{font-weight:700;font-size:14.5px;}
+.lv-info .s{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lv-stars{font-size:14px;letter-spacing:1px;color:#d8deee;}
+.lv-stars.on{color:var(--gold);}
+.lv-go{color:var(--blue);font-size:13px;font-weight:700;flex:none;}
+
+/* ===== 按钮 ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;
+  background:var(--blue);color:#fff;font-size:15px;font-weight:700;padding:12px 20px;border-radius:14px;
+  box-shadow:0 6px 16px rgba(79,124,255,.32);transition:transform .12s;width:100%;
+}
+.btn:active{transform:scale(.97);}
+.btn.gray{background:#eef1f8;color:var(--ink);box-shadow:none;}
+.btn.gold{background:linear-gradient(135deg,#ffc53d,#ff9a1f);box-shadow:0 6px 16px rgba(255,160,32,.35);}
+.btn.green{background:linear-gradient(135deg,#3ed57a,#23a95c);box-shadow:0 6px 16px rgba(46,191,113,.32);}
+.btn.small{width:auto;padding:9px 14px;font-size:13.5px;border-radius:12px;}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue);box-shadow:none;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btnrow{display:flex;gap:10px;margin-top:12px;}
+.btnrow .btn{flex:1;}
+
+/* ===== 视图 ===== */
+.view{display:none;animation:fade .25s ease;}
+.view.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ===== 卡片（3D 翻面） ===== */
+.flipwrap{perspective:900px;-webkit-perspective:900px;margin-top:6px;}
+.flip{
+  position:relative;width:100%;height:300px;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transition:transform .5s;-webkit-transition:-webkit-transform .5s;cursor:pointer;
+}
+.flip.on{transform:rotateY(180deg);-webkit-transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 10px 28px rgba(80,90,150,.16);
+}
+.face.front{background:linear-gradient(160deg,#ffffff,#f4f7ff);}
+.face.back{background:linear-gradient(160deg,#eafff1,#d9f7ff);transform:rotateY(180deg);-webkit-transform:rotateY(180deg);}
+.face .tag{font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px;}
+.face .q{font-size:19px;font-weight:700;line-height:1.6;}
+.face .qsec{font-size:12px;color:#9aa3c0;margin-top:8px;line-height:1.5;background:#eef2fb;padding:4px 10px;border-radius:8px;}
+.face .a{font-size:17px;line-height:1.65;color:#0f7a4c;}
+.face .hint{margin-top:18px;font-size:12px;color:#b6bdd4;}
+.progress-dots{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+.dot{width:9px;height:9px;border-radius:50%;background:#d8deee;}
+.dot.done{background:var(--green);}
+.dot.cur{background:var(--blue);transform:scale(1.3);}
+
+/* ===== 战斗 ===== */
+.battle-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.boss-card{
+  background:var(--card);border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 6px 18px rgba(80,90,150,.12);flex:1;
+}
+.boss-emoji{font-size:40px;line-height:1;}
+.boss-hp{flex:1;}
+.combo{
+  background:var(--card);border-radius:14px;padding:8px 12px;text-align:center;box-shadow:0 4px 12px rgba(80,90,150,.1);flex:none;
+}
+.combo .n{font-size:22px;font-weight:800;color:var(--gold);}
+.combo .l{font-size:11px;color:var(--muted);}
+.battle-bar{height:12px;background:#eef1f8;border-radius:8px;overflow:hidden;margin-top:6px;}
+.battle-bar>i{display:block;height:100%;border-radius:8px;transition:width .4s;}
+
+/* ===== 伤害飘字 ===== */
+.float-txt{position:fixed;z-index:50;font-weight:800;pointer-events:none;animation:floatUp 1s ease forwards;}
+@keyframes floatUp{from{opacity:1;transform:translateY(0) scale(1);}to{opacity:0;transform:translateY(-70px) scale(1.4);}}
+
+/* ===== 弹窗 ===== */
+.mask{position:fixed;inset:0;background:rgba(30,36,60,.5);z-index:40;display:none;align-items:center;justify-content:center;padding:20px;}
+.mask.show{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:400px;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:fade .2s ease;}
+.modal h3{margin:0 0 6px;font-size:18px;}
+.modal .sub{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:14px;}
+.modal .sub code{background:#f2f4fa;padding:1px 6px;border-radius:6px;font-size:12px;color:var(--blue);}
+
+/* 角色选择 */
+.avatars{display:flex;flex-wrap:wrap;gap:10px;}
+.av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;
+  cursor:pointer;border:3px solid transparent;box-shadow:0 3px 10px rgba(0,0,0,.1);transition:transform .12s;}
+.av:active{transform:scale(.92);}
+.av.sel{border-color:var(--blue);}
+.colors{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;}
+.cdot{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;box-shadow:0 2px 6px rgba(0,0,0,.14);}
+.cdot.sel{border-color:var(--ink);}
+.hats{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;}
+.hopt{padding:7px 12px;border-radius:12px;background:#f2f4fa;font-size:14px;cursor:pointer;border:2px solid transparent;}
+.hopt.sel{border-color:var(--blue);background:#eef3ff;}
+.field{margin-top:12px;}
+.field label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:5px;}
+.field input,.field textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;
+  font-family:inherit;color:var(--ink);background:#fafbff;outline:none;resize:vertical;
+}
+.field input:focus,.field textarea:focus{border-color:var(--blue);}
+.divider{height:1px;background:var(--line);margin:16px 0;}
+textarea.import{height:200px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.7;}
+
+/* 结算 */
+.result{text-align:center;padding:10px 4px;}
+.result .big{font-size:64px;}
+.result .stars{font-size:34px;letter-spacing:4px;margin:6px 0;color:#d8deee;}
+.result .stars.on{color:var(--gold);}
+.result h3{margin:8px 0 4px;font-size:22px;}
+.result .gain{margin:14px 0;font-size:14.5px;}
+.result .gain b{color:var(--gold);}
+.lvlup{background:#fff6e6;border:1.5px dashed #ffb020;border-radius:14px;padding:10px;margin:10px 0;font-size:14px;font-weight:700;color:#e08a00;}
+
+.hidden{display:none !important;}
+.small-tip{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 顶部角色栏 -->
+  <div class="hero">
+    <div class="avatar" id="avatarBox">
+      <span id="avatarFace" style="font-size:32px;">🦉</span>
+      <span class="hat" id="avatarHat">🎓</span>
+    </div>
+    <div class="bubble">
+      <span class="name" id="heroName">小鱼儿</span>
+      <span id="bubbleText">你好呀！我是你的督学小鱼儿，一起上岸打怪吧！</span>
+    </div>
+  </div>
+
+  <!-- 首页 / 地图 -->
+  <section class="view active" id="view-home">
+    <div class="panel">
+      <div class="row1">
+        <span class="lv" id="pLv">Lv.1 上岸学徒</span>
+        <span class="gold">💰 <span id="pGold">20</span></span>
+      </div>
+      <div class="bars">
+        <div class="bar hp"><i id="pBarHp" style="width:100%"></i></div>
+        <div class="meta"><span>❤️ 生命 <span id="pHp">20</span>/<span id="pMaxHp">20</span></span><span>⚔️ 攻击 <span id="pAtk">5</span></span></div>
+        <div class="bar exp"><i id="pBarExp" style="width:0%"></i></div>
+        <div class="meta"><span>✨ 经验 <span id="pExp">0</span>/<span id="pExpNeed">40</span></span><span>⭐ <span id="pStars">0</span></span></div>
+      </div>
+    </div>
+
+    <div class="sec-title">🗡️ 关卡 · 遗忘怪物<span id="deckTitle">示例题库</span></div>
+    <div class="levels" id="levelList"></div>
+
+    <div class="btnrow">
+      <button class="btn ghost" id="btnImport">📥 导入题库</button>
+      <button class="btn ghost" id="btnAvatar">🎀 配饰</button>
+    </div>
+    <div class="small-tip">点击关卡先「背书」再「战斗」，答对=攻击，答错=掉血<br>打赢升级、掉金币，打完所有关卡就上岸啦！</div>
+  </section>
+
+  <!-- 学习视图 -->
+  <section class="view" id="view-study">
+    <div class="sec-title">📖 先背书（第 <span id="studyLv">1</span> 关）<span id="studyCount">1/8</span></div>
+    <div class="flipwrap">
+      <div class="flip" id="flipCard">
+        <div class="face front">
+          <span class="tag">知识点 · 正面</span>
+          <div class="q" id="studyQ"></div>
+          <div class="qsec" id="studySec"></div>
+          <div class="hint">👆 点击翻面看答案</div>
+        </div>
+        <div class="face back">
+          <span class="tag">参考答案</span>
+          <div class="a" id="studyA"></div>
+          <div class="hint">👆 点击翻回正面</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-dots" id="studyDots"></div>
+    <div class="btnrow">
+      <button class="btn gray" id="studyPrev">← 上一张</button>
+      <button class="btn gray" id="studyNext">下一张 →</button>
+    </div>
+    <button class="btn green" style="margin-top:12px;" id="studyFight">⚔️ 背好了，开始战斗！</button>
+    <button class="btn gray" style="margin-top:10px;" id="studyBack">← 返回地图</button>
+  </section>
+
+  <!-- 战斗视图 -->
+  <section class="view" id="view-battle">
+    <div class="battle-top">
+      <div class="boss-card">
+        <span class="boss-emoji" id="bossEmoji">🦠</span>
+        <div class="boss-hp">
+          <div style="font-weight:800;font-size:14px;" id="bossName">遗忘史莱姆</div>
+          <div class="battle-bar"><i id="bossBar" style="width:100%;background:linear-gradient(90deg,#ff8fa3,#ff5d6c)"></i></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">剩余知识点 <span id="remainCards">8</span> / <span id="totalCards">8</span></div>
+        </div>
+      </div>
+      <div class="combo"><div class="n" id="comboN">0</div><div class="l">连击</div></div>
+    </div>
+
+    <div class="panel" style="margin-top:12px;">
+      <div class="row1"><span style="font-weight:700;">🧑‍🎓 你的生命</span><span style="font-size:12px;" id="battleHpTxt">20/20</span></div>
+      <div class="bar hp" style="margin-top:8px;"><i id="pBarHp2" style="width:100%"></i></div>
+      <div class="btnrow" style="margin-top:10px;">
+        <button class="btn small gold" id="itemHeal" style="flex:1;">💊 回血 (5💰)</button>
+        <button class="btn small gold" id="itemKill" style="flex:1;">⚡ 秒杀 (10💰)</button>
+      </div>
+    </div>
+
+    <div class="flipwrap" style="margin-top:14px;">
+      <div class="flip" id="battleFlip">
+        <div class="face front" style="background:linear-gradient(160deg,#ffffff,#fff5f5);">
+          <span class="tag">🤔 这题你会吗？</span>
+          <div class="q" id="battleQ"></div>
+          <div class="qsec" id="battleSec"></div>
+          <div class="hint">先在心里默背答案，再点击翻面核对</div>
+        </div>
+        <div class="face back" style="background:linear-gradient(160deg,#fff9ec,#ffe9d9);">
+          <span class="tag">✅ 参考答案</span>
+          <div class="a" id="battleA" style="color:#b04a00;"></div>
+          <div class="hint" style="margin-top:14px;">你刚才背对了吗？</div>
+        </div>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn green" id="btnGot" disabled>✅ 记住了！攻击</button>
+      <button class="btn" style="background:var(--red);box-shadow:0 6px 16px rgba(255,93,108,.3);" id="btnMiss" disabled>❌ 没记住，被反击</button>
+    </div>
+    <button class="btn gray" style="margin-top:10px;" id="battleQuit">🏳️ 撤退（回地图）</button>
+  </section>
+
+  <!-- 结算视图 -->
+  <section class="view" id="view-result">
+    <div class="result" id="resultBox"></div>
+    <div class="btnrow">
+      <button class="btn" id="resultHome">🗺️ 返回地图</button>
+      <button class="btn green" id="resultNext">▶️ 下一关</button>
+    </div>
+  </section>
+
+  <!-- 导入题库视图 -->
+  <section class="view" id="view-import">
+    <div class="sec-title">📥 导入我的专业课题库</div>
+    <div class="modal" style="max-width:none;box-shadow:none;border:1.5px solid var(--line);">
+      <h3>怎么填？</h3>
+      <div class="sub">
+        每行一张卡，用 <code>|</code>（竖线）分隔「题目」和「答案」。<br>
+        想分章节就另起一行写 <code># 章节名</code>。<br><br>
+        例如：<br>
+        <code style="white-space:pre;display:block;margin-top:4px;"># 第一章 马原<br>哲学的基本问题|思维和存在的关系问题<br>物质的唯一特性|客观实在性</code>
+      </div>
+      <div class="field">
+        <label>题库名称</label>
+        <input id="importTitle" value="我的专业课题库">
+      </div>
+      <div class="field">
+        <label>内容（粘贴到这里）</label>
+        <textarea class="import" id="importText" placeholder="题目|答案&#10;题目|答案&#10;# 章节名&#10;题目|答案"></textarea>
+      </div>
+      <div class="btnrow">
+        <button class="btn gold" id="importSave">✅ 保存并使用</button>
+        <button class="btn gray" id="importDemo">🎓 恢复示例题库</button>
+      </div>
+      <button class="btn gray" style="margin-top:10px;" id="importBack">← 返回地图</button>
+    </div>
+  </section>
+
+  <!-- 配饰视图 -->
+  <section class="view" id="view-avatar">
+    <div class="sec-title">🎀 小鱼儿的配饰</div>
+    <div class="modal" style="max-width:none;box-shadow:none;border:1.5px solid var(--line);">
+      <div class="sub">每通关一关，解锁一个新配饰。点配饰给小鱼儿戴上，再点一下取下。<b>全部通关还有神秘大奖配饰！</b></div>
+      <div class="avatars" id="accChoices"></div>
+      <div class="small-tip">已解锁 <span id="accCount">0</span> / <span id="accTotal">12</span> 个配饰</div>
+      <div class="btnrow" style="margin-top:16px;">
+        <button class="btn gold" id="accBack">← 返回地图</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 伤害飘字容器 -->
+<div id="floatLayer" style="position:fixed;inset:0;pointer-events:none;z-index:60;"></div>
+
+<script>
+/* ================= 工具 ================= */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function rand(a){return a[Math.floor(Math.random()*a.length)];}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+/* ================= 存储 ================= */
+var LS_DECK='kybk_deck_v2', LS_SAVE='kybk_save_v2';
+function load(key){try{var v=localStorage.getItem(key);return v?JSON.parse(v):null;}catch(e){return null;}}
+function save(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){}}
+
+/* ================= 默认示例题库 ================= */
+var DEFAULT_DECK={"title":"新大纲 刑事科学技术","levels":[{"title":"第一章 刑事科学技术概述","cards":[{"q":"一、刑事科学技术的研究对象","s":"（一）刑事科学技术的研究对象及研究内容","a":"案件中可能成为物证的各种物质、物品、痕迹、影像和空间磁场信息。物证是证据的一 大类别，是指能够证明案件事实情况的一切客观存在之物。具体来讲，物证是指能够以其外 部特征、物质属性、所处位置以及状态等证明案件真实情况的各种客观存在的物品、物质、 痕迹、影像和空间电磁场信息。 物证除了具备合法性、关联性和"},{"q":"二、刑事科学技术的研究内容","s":"（一）刑事科学技术的研究对象及研究内容","a":""},{"q":"一、刑事科学技术技术总论","s":"（二）刑事科学技术的内容体系","a":"研究本学科基本理论、基本技术以及管理、制度等基本问题，包括学科的研究对象、研 究内容以及研究方法,学科的历史发展过程，学科的基本原理,该学科与其他学科的关系,刑 事科学技术检验的原则、程序,刑科学技术鉴定机构的设置及管理制度，刑事科学技术科学 技术鉴定人的资质与管理制度,刑事科学技术现状与发展趋势,"},{"q":"二、刑事科学技术分论","s":"（二）刑事科学技术的内容体系","a":"刑事科学技术分论刑事科学技术分论部分是针对某一具体类别物证展开研究的,既研究 此类物证的基本特性、特征、属性,又研究发现、提取、显现、检验以及鉴定技术。刑事科 学技术分论部分主要包括以下内容刑事影像技术、痕迹检验技术、文件检验技术、微量物证 检验技术、毒物毒品检验技术、电子物证检验技术、视听资料检验"},{"q":"一、物质交换原理","s":"（三）刑事科学技术的基本原理","a":"任何客体发生接触，就会产生物质交换现象，表现形式分为（1）直接遗留或转移；（2） 接触转移（分为双向转移和单向转移）；（3）散发转移。 物质交换原理指导意义：物质交换原理揭示了一个重要的现象，即任何犯罪现场一定 会留下痕迹物证，没有任何痕迹物证的犯罪现场是不存在的。 1能够使现场勘探人员明确在现场勘"},{"q":"二、种属认定原理","s":"（三）刑事科学技术的基本原理","a":"种属认定是指具有专门知识、经验的人，通过对物质或痕迹进行检验，确定物质属性或 遗留痕迹物体的种类，或是比较两种物质的属性是否相同的认识活动。种属认定是对遗留痕 迹的物体类别或物质的属性所进行的判断。 依据种属认定所依据特征的不同，可以将其分为两大类：物品种类的认定和物质属性的 认定。 种属认定的科学"},{"q":"三、同一认定原理","s":"（三）刑事科学技术的基本原理","a":"同一认定，是指具有专门知识、经验的人，通过对案件中多次出现的物品、物质或痕迹 进行比较、分析，判断其是否来源于同一个客体的认识活动。 1、同一认定的类型： 1.根据同一认定对象类别的不同进行的分类，划分为人身同一认定、物体同一认定以及 动物体与植物他同一认定。 2.根据同一认定所依据特征的不同进行的"}]},{"title":"第二章 犯罪现场勘查及物证鉴定","cards":[{"q":"一、犯罪现场的概念及分类","s":"（一）犯罪现场勘查","a":""},{"q":"二、犯罪现场勘查的概念及内容","s":"（一）犯罪现场勘查","a":""},{"q":"三、犯罪现场勘查的基本程序","s":"（一）犯罪现场勘查","a":""},{"q":"一、物证的分类","s":"（二）物证","a":""},{"q":"二、物证的保管","s":"（二）物证","a":"物证保管，是指采用一定的方式、方法将物证材料客观记录、固定、提取，并加以妥善 保管，以便司法办案人员或律师认定案件事实时使用。物证保管是取证过程中的重要环节， 是收集证据工作中极为重要的一部分内容，是保证举证、质证、认证能够顺利进行，最终达 到揭露犯罪、证实犯罪目的的重要手段。"},{"q":"三、物证在刑事案件侦破中的作用","s":"（二）物证","a":""},{"q":"一、鉴定的概念和种类","s":"（三）物证鉴定","a":""},{"q":"二、鉴定的程序","s":"（三）物证鉴定","a":""},{"q":"三、鉴定文书的制作","s":"（三）物证鉴定","a":"鉴定文书是记录鉴定由来、检验鉴定过程和鉴定意见的法律文书。鉴定文书根据其检验 的内容与结论形式的不同，可以分为鉴定书和检验报告两种形式。"},{"q":"四、鉴定人出庭作证","s":"（三）物证鉴定","a":"刑事科学技术鉴定的最终目的就是证明案件的相关事实，为法官依法对案件进行公正审 理提供条件。鉴定人出庭作证并接受法庭的调查、询问是达到这一目的的程序要求。"}]},{"title":"第三章 刑事科学技术中的分析方法与技术","cards":[{"q":"一、物理方法","s":"（一）刑事科学技术中的分析方法","a":"物理方法是利用人的感官或借助一定的工具对物证的颜色、气味、物理状态及外观等外 在特性进行观察、比较，或对其物理性能进行测试和比较。"},{"q":"二、化学方法","s":"（一）刑事科学技术中的分析方法","a":"化学方法是利用化学反应原理，通过化学反应过程中产生的特殊现象(如颜色、气味、 沉淀、结晶等)，或用于快速显现形态物证(如指纹、字迹等)，或用于快速判断检材中物质 的属性和特点。化学方法检测速度快，现象特征明显，常作为现场快速检测方法和仪器分析 前筛选方法。"},{"q":"三、医学和生物学检验法","s":"（一）刑事科学技术中的分析方法","a":"刑事案件现场经常需要对尸体、活体以及人体和动物的组织、分泌物、排泄物等进行检 验，涉及临床医学检验、尸体解剖检验、组织细胞学检验、免疫学分析、电泳分析以及 DNA 分析等方法。 1、临床医学检验：通过问诊、体格检查、仪器检查以及实验检验等方法，对被检验者 的某些特征、伤害情况或生理状况进行检查，从而"},{"q":"四、仪器分析方法","s":"（一）刑事科学技术中的分析方法","a":"1、色谱分析法："},{"q":"五、显微镜检验法","s":"（一）刑事科学技术中的分析方法","a":"显微镜检验是一种分析检验方式，是将某种类型的显微镜与某种类型的分析仪器联合使 用。 刑事科学技术领域常用的显微镜主要有：（1）体式显微镜；（2）生物显微镜；（3）偏振 光显微镜；（4）比较显微镜；（5）电子显微镜等。"},{"q":"一、光源的种类","s":"（二）光源技术","a":""},{"q":"二、光源作用的原理与应用","s":"（二）光源技术","a":""},{"q":"一、光学显微镜","s":"（三）显微镜技术","a":""},{"q":"二、电子显微镜","s":"（三）显微镜技术","a":"电子显微镜简称电镜，是根据电子光学原理，用电子束和电子透镜代替光束和光学透镜， 使物质的细微结构在非常高的放大倍数下成像的仪器。"},{"q":"三、原子力显微镜","s":"（三）显微镜技术","a":"原子力显微镜,也称扫描力显微镜,是一种可用来研究包括绝缘体在内的固体材料表面 结构的分析仪器。它通过检测待测样品表面和一个微型力敏感元件之间的极微弱的原子间相 互作用力来研究物质的表面结构及性质。"},{"q":"一、色谱方法的原理与分类","s":"（五）色谱方法","a":"(一)色谱法分离原理 色谱法是一种物理化学分离方法。在色谱体系中有固定相和流动相两个相态，在 分离过程中，两相做相对运动。 (二)色谱分析法的分类 1、按两相物态分类。以气体为流动相的，称为气相色谱，该气体称为载气；以 液体为流动相的称为液相色谱；以超临界流体为流动相的称为超临界流体色谱。 2、按组"},{"q":"六、质谱方法与联用技术","s":"质谱方法与联用技术","a":""},{"q":"一、质谱仪","s":"质谱方法与联用技术","a":""},{"q":"二、气质联用法","s":"质谱方法与联用技术","a":""},{"q":"三、液质联用法","s":"质谱方法与联用技术","a":"液质联用法(LC-MS)主要可解决以下几个方面的问题："},{"q":"四、电感耦合等离子体质谱法","s":"质谱方法与联用技术","a":"1、电感耦合等离子体质谱仪技术提供了最低的检出限、最宽的动态线性范围、干扰最 少、分析精密度高、分析速度快、可进行多元素同时测定以及可提供精确的同位素信息等分 析特性。 2、电感耦合等离子体质谱仪的谱线简单，检测模式灵活多样。"},{"q":"五、直接电离质谱技术","s":"质谱方法与联用技术","a":""}]},{"title":"第四章 刑事影像技术","cards":[{"q":"一、现场拍摄的工作步骤","s":"（一）现场摄影与摄像","a":""},{"q":"二、现场摄影与摄像的内容及其拍摄要点","s":"（一）现场摄影与摄像","a":"现场摄影与摄像拍摄的内容主要包括现场方位、现场概貌、现场重点部位和现场细目四 项。 1. 现场方位摄影拍摄是以整个现场坏境为拍摄对象，反应犯罪县城所处的地点、位置 及其与周围事物关系的专门摄像记录手段。 尽量用单幅画面，受拍照距离和镜头视场限制 难以实现的可用回转连续拍摄法，对复杂的现场可采用多向拍"},{"q":"三、现场拍摄的表现手法","s":"（一）现场摄影与摄像","a":"1单向拍摄法、 2相向拍摄法（相对的方向相等的距离）、 3多向拍摄法、 4回转连续拍摄法（固定相机，水平或垂直转动相机，后期拼接画面）、 5直线连续拍照法、 6测量拍摄法（是指将带有标准刻度的比例尺与被拍物一同摄入画面通过比例尺表现被 拍物及其特征大小的拍摄方法）、 7运动镜头拍摄法（在拍摄时移动机"},{"q":"四、现场照片案卷制作","s":"（一）现场摄影与摄像","a":""},{"q":"一、物证摄影的一般要求","s":"（二）物证摄影","a":"1、必须准确、清晰的反映被拍对象的形态、内容等特征"},{"q":"二、物证摄影的通用技术手段","s":"（二）物证摄影","a":""},{"q":"三、物品类物证的拍摄记录方法","s":"（二）物证摄影","a":""},{"q":"四、物证的检验拍摄方法","s":"（二）物证摄影","a":"物证检验拍摄与简单的记录性拍摄不同，其拍摄对象往往是潜在或者非常微弱而难以在 一般条件下观察到的。 1、配光增强法： 就是应用前述的增强反差配光技术，使痕迹与承痕客体表面之间形成足够明显的亮度差， 从而显现并记录痕迹的拍摄方法。 2、偏振光摄影： 是通过选择成像光线的偏振状态，从而改变被拍摄亮度分布"},{"q":"一、数字图像基本知识","s":"（三）数字图像处理技术","a":"1、模拟图像转化为数字图像要经过两个步骤：图像空间采样、像素值量化 2、常见的图像数字化工具有：数码相机、扫描仪、视频图像采集系统 3、按照数字图像的位深度可以将图像分为：二值图像、灰度图像、彩色图像和多光谱 图像 4、数字图像文件格式：BMP、JPEG、TIFF、GIF、RAW、PSD、EXIF "},{"q":"二、数字图像处理的方法及其应用","s":"（三）数字图像处理技术","a":"1、点处理。 又分为一般点处理和直方图均衡 2、领域处理。 又分为图像平滑、顺序统计滤波和图像锐化 3、代数运算处理。图像代数运算是指将两幅图像通过对应像素之间的加、减、乘、除运算 得到输出图像的方法 4、图像的几何变换。目的是改变图像中各物体之间的空间关系 5、图像颜色的处理。 6、图像复原与超分"}]},{"title":"第五章 痕迹检验","cards":[{"q":"一、手纹的特性","s":"（一）手印检验","a":"人各不同、终身基本不变、触物留痕（物质交换原理的直接体现）。"},{"q":"二、手的外形结构与手掌皮肤组织结构","s":"（一）手印检验","a":""},{"q":"三、手掌面花纹的类型与特征","s":"（一）手印检验","a":""},{"q":"四、手印的形成与分类","s":"（一）手印检验","a":"1、手印的形成：手印的形成必须具备造痕客体、承痕客体、作用力三方面的因素（第四种 为中介物质，中介物质是必不可少的：汗液、血液、油脂、尘土）"},{"q":"五、现场手印的寻找、发现","s":"（一）手印检验","a":""},{"q":"六、潜在手印的显现方法","s":"（一）手印检验","a":""},{"q":"七、现场手印的记录和固定提取","s":"（一）手印检验","a":""},{"q":"八、样本手印的收取","s":"（一）手印检验","a":"1、捺印样本的收取: 捺印样本按照其捺印的对象不同，可以分为活体捺印样本和尸体捺印样本 活体捺印样 本手印的采集"},{"q":"九、手印鉴定","s":"（一）手印检验","a":"手印检验的基本程序分为："},{"q":"十、指纹自动识别系统","s":"（一）手印检验","a":"通过指纹自动识别系统可以实现以人找人，以案找人， 以人找案，以案找案以及相关 信息的查询。在查明嫌疑人身份或前科事实，追逃， 查证无名尸体的身源，查证犯罪嫌疑 人以往的犯罪事实，深挖犯罪嫌疑人余罪、 破获积案，串并案件以及协助情报分析、犯罪 区域分析、犯罪类型分析、重点人 口防范控制等领域发挥着十分"},{"q":"一、足迹的分类","s":"（二）足迹检验","a":"1、按照造型客体的种类分类不同，将足迹分为赤足足迹、穿鞋痕迹和穿袜痕迹 2、按照承痕体表面形态结构的变化可分为立体足迹和平面足迹。其中立体足迹是指人在塑 性较强的地面或物面上行走或站立时，形成明显凸凹结构的痕迹平面足迹是指人在硬质地面 或者物体上行走或站立时，依赖于附着物质的相互转移后形成没有明显立"},{"q":"二、足迹的特征","s":"（二）足迹检验","a":""},{"q":"三、现场足迹的勘验","s":"（二）足迹检验","a":""},{"q":"四、现场足迹的记录","s":"（三）现场足迹的显现和提取","a":"1、笔录内容；2、示意图；3、照片内容（足迹示意图主要包括足迹形象、步幅特征、 步态特征和追踪平面示意图）"},{"q":"五、足迹分析","s":"（三）现场足迹的显现和提取","a":""},{"q":"六、足迹鉴定","s":"（四）足迹查询","a":""},{"q":"一、工具痕迹的基本类型","s":"（三）工具痕迹检验","a":"根据工具与客体的接触关系不同分为凹陷类痕迹(静态痕迹)、线条类痕迹(动态痕迹) 1、凹陷类痕迹（是指承痕体在工具法向力的作用下，在接触部位形成的凹陷类变形痕 迹） ①凹陷类痕迹的结构：痕起缘、痕止缘、痕底、痕壁。 ②凹陷类痕迹的特征： 1.种类特征：反映工具接触部位的形状和规格等种属方面的特点，主要"},{"q":"二、常见的工具痕迹及其特征","s":"（三）工具痕迹检验","a":"1、撬压痕迹(作案人手持作案工具利用杠杆作用破坏客体时形成的凹陷痕迹，在工具痕迹 中出现率最高) 常见撬压方式：扩缝撬压，折离撬压，扭转撬压，夹持撬压 常见撬压工具：螺丝刀，钢丝钳，棍棒 2、打击痕迹(作案人持工具利用碰撞作用破坏客体时形成的痕迹，一次动作形成一处痕迹)， 属于凹陷痕迹，包括立体痕迹"},{"q":"三、工具痕迹的发现、识别和提取","s":"（三）工具痕迹检验","a":""},{"q":"四、分析工具痕迹","s":"（三）工具痕迹检验","a":"分析工具痕迹是现场分析的重要内容，通过分析不但可以为侦查破案提供重要的线索和 证据，还可以进一步检验鉴定打下良好的基础。主要有以下四个方面：分析工具的种类、分 析揭露伪造现场、分析作案人的特点、串并案件。"},{"q":"五、工具痕迹鉴定（参考手印痕迹鉴定）","s":"（三）工具痕迹检验","a":"工具痕迹鉴定的一般程序是预备检验、分别检验、比较检验、综合评断、做出结论和制 作工具痕迹鉴定书 (1)预备检验。 主要有了解案情、明确鉴定要求、器材准备 (2)分别检验。 (3)比较检验。 主要有检验现场工具痕迹、检验嫌疑工具、制作实验样本 常见检验方法主要有特征对照法(主要方法)、线痕接合法、特征"},{"q":"一、射击弹头、弹壳上的痕迹特征","s":"（四）枪弹痕迹检验","a":""},{"q":"二、弹着痕迹","s":"（二）射击弹壳上的痕迹特征","a":"是指枪弹发射后，弹头飞离枪口后射向目标，在被射物体（或人体）上形成的痕迹，是 射击弹头与目标物相互作用形成的痕迹。主要表现为弹孔创道和跳弹痕。"},{"q":"三、枪弹痕迹的勘验","s":"（二）射击残留物痕迹","a":""},{"q":"四、枪弹痕迹鉴定","s":"（4）根据射击残留物进行判断","a":""},{"q":"一、车辆痕迹检验","s":"（五）特殊痕迹检验","a":"(一)车辆痕迹的概念 是利用车辆作案或肇事时，车辆的轮胎、车体附加部件或车体形成的痕迹。 (二)车辆痕迹的特征 主要是指反映车体结构、轮胎表面和车体附件物的痕迹特征，分为机动车和非机动车辆 痕迹的特征。 非机动车辆痕迹种类特征：车体结构，轮胎种类，车体附件 非机动车辆痕迹个别特征：轮胎痕迹，车体附件"},{"q":"二、整体分离痕迹检验","s":"（五）特殊痕迹检验","a":"(一)整体分离痕迹的概念 一个完整的物体被外力作用后分离成两部分或若干部分所形成的痕迹成为整体分离痕迹。 (二)整体分离痕迹的种类及特征 1、种类：主要分为同质整体分离痕迹(同一质料的物体或物品分析离后形成的痕迹)和 异质整体分离痕迹(由两种以上质料的分体组合成的整体在分离后形成的痕迹)。 2、特征"},{"q":"三、纺织品痕迹检验","s":"（五）特殊痕迹检验","a":"主要是指纺织品本身作为造痕体在承痕体上形成印痕，或者因工具或外力作用作为承痕 体保留下痕迹。 (一)纺织品痕迹特征 1、种类特征：纤维种类，编织类型，花纹图案，纱线结构等 2、个别特征：仿制过程形成的“纱疵”特征，加工过程形成的裁剪缝纫特征；使用过 程形成的破损缝补特征 (二)纺织品痕迹检验 ①根据"},{"q":"四、开锁、破锁痕迹检验","s":"（五）特殊痕迹检验","a":"是指犯罪嫌疑人使用某种钥匙或某种工具开锁、破锁时，在锁的有关部件上形成的痕迹。 (一)开锁、破锁的痕迹特征 1、原配钥匙开锁破锁的痕迹特征：子弹球面上擦痕、锁芯空口部压痕 2、后配钥匙开锁破锁的痕迹特征：后配钥匙压擦痕、钥匙牙花线状擦痕、硬度大且材料薄 的后配钥匙压痕 3、万能钥匙开锁破锁的痕迹特征"},{"q":"五、牙齿痕迹检验","s":"（五）特殊痕迹检验","a":"牙齿痕迹是牙齿对承痕休进行咬切时，在承痕体上形成的痕迹反映，俗称牙印。 (一)牙齿的结构特征 1、一般特征：有牙弓的大小、形态，上下颌齿的咬合状态，牙齿的疏密和各牙冠的大小、 形状等。 2、个别特征：有牙列形态，咬合面的总体形态，每个牙冠各部位的凸凹特点，个别牙齿的 异常，牙齿的局部缺损及修补特征等"}]},{"title":"第六章 文件检验","cards":[{"q":"一、笔迹检验原理","s":"（一）笔迹检验","a":"笔迹是通过书写活动形成的具有个人特点的文字、符号的形象系统。笔迹检验是通过两 部分笔迹之间的比较鉴定，从而确定它们是否为同一人所写的一项技术。不同人的书写技能 与习惯只能蕴含在个人的笔记之中。 (一)笔迹的反映性为笔迹检验提供了物质基础 ①书写习惯具有自主性：注意具有局限性；书写人的主观意识与书写自"},{"q":"二、笔迹特征","s":"（一）笔迹检验","a":"特征，是一事物区别其他事物的显著征象或标志。笔迹特征是个人书写习惯特定性的表 现，是区别不同人笔迹的具体征象。将笔迹特征看作一个系统，认识笔迹特征时可以从宏观、 中观、微观三个层次看。 (一)笔迹的宏观层次特征 ①笔迹的整体风貌特征： 1.书写水平特征（当嫌疑人笔迹的书写水平明显低于物证笔迹时，可作"},{"q":"三、笔迹检验的方法","s":"（一）笔迹检验","a":"(一)分析笔迹的形成 ①分析物证笔迹(物证笔迹分为正常笔迹和非正常笔迹) ②分析样本笔迹(样本笔迹分为平时样本和实验样本) (二)选择、记录物证笔迹特征 ①选择物证笔迹特征 ②记录物证笔迹特征 (三)比较笔迹的异同 既要做到认真细致、客观全面的比较，又要在比较中，透过不同的表面现象找有规律的、 稳定"},{"q":"四、非正常笔迹检验","s":"（一）笔迹检验","a":"非正常笔迹是指在不同于正常的主观或客观条件下形成的笔迹。常见的非正常笔记有： 书写速度变化的笔迹、左手伪装笔迹、模仿笔迹等。 (一)书写速度变化的笔迹检验 ①书写速度从慢到快变化的基本规律：连笔增多、笔画省略、顿压消失、写法简化、运笔变 形和真草之别等 ②书写速度变化的笔迹的检验要点 1. 要慢中找"},{"q":"一、印刷文件与印刷文件检验","s":"（二）印刷文件检验","a":"1、印刷文件： 是指利用印刷原理及其技术方法制作的文件，但在印刷文件检验意义下的印刷文件，主 要是指以纸张为承印品的一切印刷品。 2、印刷文件检验： 是运用印刷技术知识，结合利用印刷文件实施违法犯罪活动的规律和特点，根据文件上 的印刷加工特征及其变化规律，对文件的印刷方法、印刷机具、印刷品的来源和印"},{"q":"二、货币、票证检验","s":"（二）印刷文件检验","a":"货币是充当一切商品等价物的特殊商品，也是价值的一般代表。 (一)货币、票证印制过程中的特殊方法 ①印刷材料：纸张和油墨是按设计要求研制的，很难仿制，因此具有防伪效果。 ②制版方法：票面底纹由千姿百态的各色细密线构成，一般贯穿整个幅面，形成主要图文的 背景。货币、护照等重要票证的主要图文一般采用雕刻凹"},{"q":"三、印章印文检验","s":"（二）印刷文件检验","a":"印章印文检验是对作为文件真实性凭据的印章印文真伪所做的判断。 (一)按印文的形成方式分类 1、蘸墨印章 2、自含墨印章 3、压凸印章 4、套印印章 (二)印章印文的特征(印文特征是指印章印面的结构特点的反应，鉴别时需要将可疑引文与 样本印文进行比较检验。根据印文特征形成的原因及其在检验中的实际作用，"},{"q":"四、印刷机具鉴别","s":"（二）印刷文件检验","a":"印刷机具鉴别，是根据印刷文件反映的印刷机具特征，对机具的种类和个体进行鉴别， 认定可疑机具是否为作案用机具的检验过程。 (一)静电复印机鉴别 ①静电复印机的机种鉴别：主要根据复印文件反映的光电导体类型，感光直径、显影方式、 分离方式、定影方式、着色剂种类、图像网点特征和暗记特征进行综合鉴定。 ②静电"},{"q":"五、印刷品来源鉴定","s":"（二）印刷文件检验","a":"是根据与物证同批印刷品的空间分布规律(即流通使用范围)，通过调查、取样、鉴别， 对物证纸的出处做出判断的一种检验方法。 (一)同版印刷品鉴别 版面内容是否一致、版面的几何规格是否相同、细节形态特征是否相符等特征是否相符 进行综合鉴别。 (二)同版同阶段印刷品鉴别 同版同阶段印刷品是指印刷机印刷的整个"},{"q":"一、污损文件与污损文件检验","s":"（三）污损文件检验","a":"1、污损文件：是指受人为或自然因素的影响，而被污染、损坏或发生其他变化的文件。 2、污损文件检验：是指运用物理学、化学及其他学科的原理和方法，检验各种被污染、损 坏和变造的文件，借以整复文件，查明文字记载，显示文件变化，揭露伪造、变造事实的 一项专门技术。 污损文件检验的一般方法：可见光检验、不可见"},{"q":"二、变造文件检验","s":"（三）污损文件检验","a":"是指对可疑文件上是否存在变造事实所做的鉴别和判断。其中，变造文件是指利用各种 手段改变原文件的内容或原貌而制成的假文件。 ①擦刮文件检验：笔画洇散；固有标记变化；纸张表面留有刮擦工具痕迹或者微粒； ②添改文件检验：内容不连贯或互相矛盾；笔画颜色不同；文字布局不协调；相邻文字或 笔画有重描现象 ③消退"},{"q":"三、文字记载模糊的文件检验","s":"（三）污损文件检验","a":"(一)涂抹掩盖字迹的显现：(被涂抹掩盖的字迹能否显现还要视原文与掩盖的情况而定) ①与原文的色料和掩盖物质的理化性质有关 ②与原文的形成工具、掩盖方式和使用工具、纸张种类和时间间隔有关 ③与现有的技术手段与设备有关 (二)压痕字迹的辨读(可采用方法：侧光检验、静电成像法检验) (三)褪色字迹的显现("},{"q":"一、文件制成时间检验的途径","s":"（四）文件制成时间检验","a":"文件制成时间检验应具体问题具体分析，没有固定的模式和一成不变的方法，要根据不 同的文件类型采用不同的技术手段。 (一)文件的内容、言语和文字的时代性 (二)文件物质材料生产使用的时间性(纸张，文字、图形色料) (三)文件制作工具生产使用的时间性(1.书写工具 2.打印工具 3.复制工具 4.盖印工具"},{"q":"二、字迹书写时间的检验","s":"（四）文件制成时间检验","a":"各种色料由书写工具书写到纸张上以后，以此为起点总要发生物理或化学性质的变化， 这种变化在一定范围内与时间有相关性。 (一)外观检验：适用于书写时间相差很长的字迹书写时间判断（书写时间长，颜色越陈旧； 书写时间短，色泽越鲜艳） (二)硫酸盐扩散程度测定：随着时间的推移，字迹笔画中的硫酸根离子会逐渐越过"},{"q":"三、印文盖印时间的检验","s":"（四）文件制成时间检验","a":"(一)印泥印文油质扩散程度测定 通过测量同一印文在某几个时间段的再扩散距离来推断印文的绝对盖印时间 (二)印文可变性印记特征检验 利用印文的可变性印迹特征检验印文的盖印时间，是根据印章的印面结构和印面附着物 的历时变化规律，通过检材印文与其历时样本印文的比较检验，以印文可变性印迹特征的异 同，推断检"},{"q":"四、字迹与印文形成的时序的判断","s":"（四）文件制成时间检验","a":"1、字迹笔画的连断特征(是指印文相互交叠的部位的字迹笔画形态上是否完整，是否出现 中断、变细或残缺变化现象。是判断朱墨时序的主要特征) ①先朱后墨：1.用圆珠笔写出现完全断笔或半断笔钢笔书写出现笔画中断、变细或呈点状分 布;2.复印纸书写：笔画出现断笔或者缺失现象;3.喷墨打印机：打印字迹笔画残缺不"},{"q":"一、言语识别与鉴定的概述","s":"（五）言语识别与鉴定","a":""},{"q":"二、地域性言语识别","s":"（五）言语识别与鉴定","a":"地域性言语识别的目的是通过地域性言语识别判断案件犯罪嫌疑人(或当事人)的所在 地区、籍贯，为侦查破案确定方向、范围。地域性言语识别的根据有以下几点："},{"q":"三、社会性言语识别","s":"（五）言语识别与鉴定","a":"语言在执行其功能的过程中，受社会因素的影响，形成了社会变体，即社会方言。我们 把表现不同社会方言特点的言语，称为社会性言语。从侦查实际出发，社会性言语识别主要 有三方面内容。"},{"q":"四、书面言语鉴定","s":"（3）专用符号特征；（4）语体特征；（5）职业性言语内容特征；","a":""}]},{"title":"第七章 微量物证检验","cards":[{"q":"一、爆炸物及其残留物种类","s":"（一）爆炸物证检验","a":""},{"q":"二、炸药爆炸与易爆物爆炸的现场特征。","s":"（四）爆炸装置。通常由包装物、炸药和起爆系统三部分组成。","a":"爆炸现场有两种类型：一是爆炸案件现场，二是爆炸事故现场。"},{"q":"三、爆炸物证的采取、包装","s":"（二）易爆物爆炸的现场特征","a":"采集爆炸物证时先将明显的抛出物和遗留物用镊子或戴手套分别采取，用纸袋或聚乙烯 塑料袋分别包装。对于一些不易发现的金属残留物，可用磁铁吸引。再以炸点为中心向外围 每隔一定的距离扫取表面或地面的爆炸浮沉。 炸药爆炸后，其爆炸残留物与抛出物的 分布情况各有特点，因而在采集时应当注意。 爆炸残留物呈现以炸点"},{"q":"四、爆炸物证的检验","s":"（二）易爆物爆炸的现场特征","a":""},{"q":"一、射击物与射击残留物","s":"第二节 射击残留物检验","a":""},{"q":"二、射击残留物的分布","s":"（二）射击残留物","a":"握枪手掌的虎口处和食指外侧分布最多，衣袖袖口也存在一部分。"},{"q":"三、射击残留物的采集和包装","s":"（二）射击残留物","a":"射击残留物具有量小、成分复杂、不易被发现的特点，除在采集时需遵循检材的必要的 记录、固定等物证采集的基本原则外，还应对不同载体上的检材采用相应的采集与包装方法， 以避免检材之间的污染。"},{"q":"四、射击残留物的检验","s":"（三）嫌疑枪支上射击残留物的采集","a":""},{"q":"一、油脂物证的采集与包装","s":"（三）油脂、涂料检验","a":"油脂物证大多数以油迹、油污等形式存在于现场地面的泥土、衣物、作案工具等载体上， 且成分复杂，组分易变，易被污染，因而在物证的采集、包装和存储及检验方面要求较高， 应对不同形态，不同客体上的油脂物证采用相应的提取方式。 1、油脂附着在衣物纸张等载体上可直接用剪刀剪取比油脂斑迹稍大的部分送检; 2、水泥"},{"q":"二、油脂物证的分析","s":"（三）油脂、涂料检验","a":"(一)油脂物证的前处理方法 油脂物证常附着于各种载体上，因而在检验之前，需采用溶剂提取法、加热顶空 提取 法、吸附解吸提取法和固相微萃取法等相应的前处理方法进行提取。 (二)油脂物证的检测 常量的油脂检测，可采用点燃实验、溶解度实验、物理常数测定及化学滴定等方法； 少量则采用灵敏度仪器分析："},{"q":"三、涂料的组成","s":"（三）油脂、涂料检验","a":"大多数常用涂料均由成膜物质(基料)、次要成膜物质(颜料)、辅助成膜物质 (助剂)、 挥发性物质四部分基本成分组成。 (一)主要成膜物质(基料) 1、油脂 2、树脂(包括天然树脂，人工树脂，合成树脂) (二)次要成膜物质(颜料) (三)辅助成膜物质(助剂)主要用于改进涂膜的性能和改善涂料的工艺性能 1"},{"q":"四、常用涂料的品种和特性","s":"（三）油脂、涂料检验","a":"(一)汽车用涂料(步骤)"},{"q":"五、涂料物证的采集与包装","s":"（三）油脂、涂料检验","a":"1、黏附在客体上的涂料附着力不强时可以用牙签或细针挑下装入样本瓶;"},{"q":"六、涂料物证的分析检测","s":"（三）油脂、涂料检验","a":"涂料的种类繁多，成分复杂，特征性强，量少且易丢失。 涂料物证检验主要是对涂料的形态、涂层数目、颜色、主要成膜物质及微量元素进行检 验，是一种综合检验。 不同有机物的征官能团在红外光谱和激光拉曼光谱中呈现出不同的振动形式，因而可以 根据两种图谱来鉴别涂料中所含的主要成分，从而区别涂料的种类。也可以应用"},{"q":"一、纺织纤维的特征","s":"（四）纤维检验","a":""},{"q":"二、纺织纤维上的染料","s":"（四）纤维检验","a":"染料是能使纤维和其他材料着色的物质。根据来源可分为天然染料和合成染料两大类。"},{"q":"三、纺织品的分类","s":"（四）纤维检验","a":"纺织品是用纺织纤维制造的产品。作为纺织工业产品， 1、按原料的不同分为：棉织物、毛织物、丝织物、麻织物、化纤织物五大类; 2、按生产方式的不同分为：纱、线、绳、织物四类。（1）纱、线、绳织物，按原料 成分不同可分为纯纺织物，混纺织物，交织物；（2）按织造方法可分为机织物，针织物，无 纺织物"},{"q":"四、纤维物的特点与采集","s":"（四）纤维检验","a":""},{"q":"五、纤维物证的检测","s":"（四）纤维检验","a":"对纤维物证进行检验鉴定时，通常根据纤维内部结构、外观形态、物理特性等进 行初 步检验，然后再采用化学方法对纤维物的成分和性质进行系统的鉴定。 (一)初检 1、外观检验 2、荧光检验 3、燃烧检验 4、附着物检验 (二)纤维物证种类分析"}]},{"title":"第八章 毒物毒品检验","cards":[{"q":"一、毒物检验","s":"","a":""},{"q":"二、毒品检验","s":"","a":""},{"q":"1.毒物的概念","s":"一、毒物检验","a":"毒物是在一定条件下以较小剂量进入生物体后，发生生物化学作用，使生物体器官组织 功能或形态结构发生损害甚至造成生物机体死亡的外源性化学物质。"},{"q":"2.毒物的种类","s":"一、毒物检验","a":"根据毒物的毒性，可分为极毒、剧毒、中等毒、低毒毒物，对人致死量分别低于 0.05g、0.5g、 5g、50g,致死量大于 50 为实际无毒物。 根据毒物对生物体的作用，把毒物分为腐蚀毒、实质毒、神经毒、血液毒等。 毒物可以分为有机毒物和无机毒物。在毒物检验分析中，经常根据毒物的理化性质和分离提 取方"},{"q":"3.毒物检材的采集、包装和送检","s":"一、毒物检验","a":"（1）检材采集 一旦发生中毒投毒案件，就要尽早进入案件现场进行调查取证。中毒投毒案件现场访问 应该围绕是否中毒、是自杀还是他杀、是职业中毒还是误服或者意外。如果受害人还活着， 要立即组织抢救。要了解抢救的过程，中毒症状、抢救中使用了什么药物，及时采集受害人 的呕吐物、排泄物、血液、尿液。要访问抢救医"},{"q":"4.毒物检验","s":"一、毒物检验","a":"在进行检材采集送检后，检材和样本被送到检测机构检验。毒物检材在检验之前一般要进行 处理。 (1)检材处理 检材处理的概念：也叫分析物(毒物)提取，是用适当的方法减少或除去检材中的杂质，以减 少杂质对分析测定的干扰，影响分析结果。 作用：检材处理还有浓缩分析物、把分析物转化为便于分析的形态、保护仪器、"},{"q":"5.常见毒物检验","s":"一、毒物检验","a":"(1)水溶性毒物 水溶性毒物是溶于水的毒物。 水溶性毒物的提取主要利用毒物可溶于水的性质。主要方法有： ①水浸泡。就是在适量检材中加入适量的水，混合，然后过滤或者离心分离，取滤液或离心 上清液检验。 ②透析法。将检材和水混合后，放在透析袋中，将透析袋悬挂于蒸馏水中，一段时间后透析 袋内的水溶性毒物进"},{"q":"1.毒品的概念","s":"二、毒品检验","a":"毒品是国家管制的能够形成瘾癖的精神药品和麻醉药品。"},{"q":"2.毒品的分类","s":"二、毒品检验","a":"根据毒品的来源，把毒品分为天然毒品和人工合成毒品。 毒品还根据成瘾性的难易分为硬性毒品和软性毒品。"},{"q":"3.毒品检材及其采取、送检","s":"二、毒品检验","a":"毒品案件的检材，主要分为两种情况：一种是缴获嫌疑毒品，包括非法持有、运输、贩卖的 各种嫌疑材料。另一种是吸食毒品的吸具、嫌疑毒品的包装材料,吸毒嫌疑人的生物样品。 抽样：对于缴获的嫌疑毒品，如果外观上接近的多个分包组成大包，可以作为一批处理。对 于由相同外观分包组成的一批嫌疑毒品，为了节省检验资源和"},{"q":"4.常见毒品","s":"二、毒品检验","a":"(一)鸦片类毒品 鸦片类毒品包括鸦片、吗啡、海洛因、可待因、罂粟壳、罂粟苗、杜冷丁、二氢埃托菲、 美沙酮等。有天然的，也有人工合成的。 检测方法：一般直接用色谱法或质谱联用法。 (二)大麻类毒品 大麻类毒品是从印度大麻(cannabis sativa)植物中获得的一类天然毒品。大麻类毒品 主要有大麻"},{"q":"5.毒品检验","s":"二、毒品检验","a":"（1）筛选分析：不同检材采用不同的方法检验。对于缴获的毒品，浓度较高，数量充足， 可以先用现场快速检测试剂盒(化学显色法)筛选后，再用仪器方法确证。对于缴获的吸具、 毒品包装材料，如果材料中的毒品浓度较低，毒品数量有限，可以直接用仪器测定。对于尿 样，已经有比较齐全的免疫试剂盒可以先用免疫试剂盒筛选"},{"q":"6.易制毒化学品、秘密制毒及相关检验","s":"二、毒品检验","a":"办理毒品案件时常常涉及秘密制毒相关化学物证的分析。主要包括易制毒化学品分析、 半成品或者中间产物的分析、废液或废料的分析，也包含毒品成品的分析。易制毒化学品是 用于非法制造毒品的化学品。 对于标签完好的易制毒化学品，为了节约物证分析资源，在得到犯罪嫌疑人认可后执法 部门一般不送检。但是如果法院审判时"}]},{"title":"第九章 电子物证检验","cards":[{"q":"一、电子数据取证的分类","s":"第一节 电子数据取证技术","a":"根据取证对象的状态，可将点在数据取证分为静态取证和动态取证两类。 静态取证又称为被动取证、事后取证，是指对计算机信息系统在未运行时保存在存储介 质或芯片中的数据的取证； 动态取证又称在线取证、实时取证，是指信息系统在运行时的电子数据，包括计算机等 设备内存芯片中的数据、网络中传输的数据的取证。 静态"},{"q":"二、电子数据取证的原则","s":"第一节 电子数据取证技术","a":"(一)所有取证和处理证据原则必须被遵守 (二)获取证据时采用的方法不能改变原始证据 (三)采证人员必须经过专门培训 (四)完整记录对证据的获取、访问、储存、传输过程并妥善保存 (五)每一位保管电子证据人员应该对他的行为负责"},{"q":"三、电子数据取证流程","s":"第一节 电子数据取证技术","a":""},{"q":"四、电子数据的提取和固定","s":"（七）封存证据","a":"完整备份有两种方式：一是采用硬盘复制机将源介质复制到目标介质上，制作成与源盘 一模一样的副本。二是将存储介质通过只读锁接到检验工作站上，用软件制作镜像文件。 不管是用硬盘复制机还是用只读锁加软件进行电子数据的提取与固定，都需要在提取、 固定和操作的同时计算完整性校验值。"},{"q":"五、移动终端取证技术","s":"（七）封存证据","a":""},{"q":"一、数据恢复技术","s":"第二节 电子数据检验技术","a":""},{"q":"二、系统痕迹检验技术","s":"（五）数据库恢复","a":"系统痕迹检验主要包括用户信息、系统信息、系统服务信息、硬件信息、应用程序运行 记录、应用程序安装记录、IM工具使用记录、电子邮件使用记录等信息。 系统痕迹检验通常对浏览器历史痕迹检验、系统日志检验、注册表检验。"},{"q":"三、电子邮件检验","s":"（三）注册表检验","a":""},{"q":"四、即时通信检验","s":"（二）电子邮件真实性检验","a":""},{"q":"五、软件的同一性、相似性检验","s":"（二）即时通信的信息真实性检验","a":"计算机软件是指计算机系统中的程序及其文档，程序是计算任务的处理对象和处理规则 的描述；文档是为了便于了解程序所需的阐明性资料。 根据检材和样本的内容可选择以下一项或多项内容进行检验："},{"q":"六、软件功能检验","s":"（5）文档和源程序/目标程序间的比对","a":""},{"q":"二、设备配置和技术能力（最后看，课本 352页，几乎不考）","s":"（六）其他工具","a":""}]},{"title":"第十章 视听资料检验","cards":[{"q":"一、图像伪造篡改的主要方式","s":"第一节 图像资料检验","a":"图像资料的检验内容应该包括三个方面：原始性、真实性以及完整性。"},{"q":"二、图像资料检验的主要方法","s":"（三）计算机辅助生成","a":""},{"q":"三、法庭语音检验的基本内容","s":"第二节 语音资料检验","a":""},{"q":"1、基于 EXIF信息的图像检测法，","s":"（一）静态图像检验方法","a":"经过某种软件修改后，时间选项发生变化，增加某项信息，减少某项信息 缺陷：送检图像必须为数字图像，某些软件可以重新编辑图像的 EXIF 信息"},{"q":"2、基于 CFA差值的图像检测法","s":"（一）静态图像检验方法","a":"当一幅图像通过某种方式篡改后，必然会打破整幅图像或部分图像内部的相关性 联系"},{"q":"3、基于光照一致性的图像检验法","s":"（一）静态图像检验方法","a":"未经篡改的图像必然在其记录结果中呈现出与现场光线条件一致的光影记录。"},{"q":"4、基于透视规律一致性的图像检验法","s":"（一）静态图像检验方法","a":"透视规律： 平行透视，成角透视，倾斜透视，空气透视 5、基于人体结构规律的图像检测，人像检验的依据： ①在一定时间内，相貌特征既具有个性化又具有稳定性 ②人体躯干比例关系在一定时间内具有稳定性 ③人体姿态变换要符合生理结构特点 检验方法：测量分析、模拟实验"},{"q":"6、基于区域特征一致性的图像检测法","s":"（一）静态图像检验方法","a":""},{"q":"1、原始数据校验","s":"（二）视频检验方法","a":"2、参数校验：主要项目包括：视频编码信息，音频编码信息，文件信息 3、视频连续性校验（1 时钟检验 2内容检验）"},{"q":"4、声像同步检验","s":"（二）视频检验方法","a":""},{"q":"1、TrueMark软件","s":"（三）软件检验方法","a":""},{"q":"2、JPEGsnoop 软件","s":"（三）软件检验方法","a":""},{"q":"1、话者分析","s":"（一）法庭语音检验的基本内容","a":""},{"q":"2、语音增强与降噪","s":"（一）法庭语音检验的基本内容","a":""},{"q":"3、真实性检验","s":"（一）法庭语音检验的基本内容","a":""},{"q":"4、录音转写","s":"（一）法庭语音检验的基本内容","a":""},{"q":"5、法庭语音比较","s":"（一）法庭语音检验的基本内容","a":""},{"q":"1、听觉分析","s":"（二）法庭语音检验的技术方法","a":""},{"q":"2、声学分析","s":"（二）法庭语音检验的技术方法","a":""},{"q":"3、统计分析","s":"（二）法庭语音检验的技术方法","a":""},{"q":"4、自动识别","s":"（二）法庭语音检验的技术方法","a":""}]},{"title":"第十一章 生物物证及 DNA 技术","cards":[{"q":"1.发展概況","s":"（1）法医DNA 发展概況及基本理论","a":"(一)概念 DNA是脱氧核糖核酸的简称，是生物体遗传和繁殖的基础，法医 DNA 分析又称为法医遗 传学,是应用分子生物学、遗传学、生物化学等学科的基础理论和技术手段，分析遗传标记 在群体中的分布与传递规律，确定分析样品的一致性、遗传关系以及遗传学特征等信息，从 而为侦查破案和司法审判提供线索和证据的"},{"q":"2.法医DNA 技术的科学基础","s":"（1）法医DNA 发展概況及基本理论","a":"(1)细胞与核酸基础知识 细胞是生命活动的基本单位 细胞的基本共性： 1 所有细胞表面均有由磷脂双分子层与镶嵌蛋白质构成的细胞膜。 2 所有细胞都有两种核酸,即脱氧核糖核酸 DNA 与核糖核酸 RNA,DNA负责遗传信息的复制 和存储，RNA负责遗传信息的转录指导蛋白质分子的翻译。遗传信息从 DNA"},{"q":"1、DNA 的特性","s":"（1）法医DNA 发展概況及基本理论","a":"DNA是生物体遗传和繁殖的基础，我们每个人的遗传信息一半来自父方，一半来自母方。 DNA序列中 A、G、C、T 四种碱基的组成和排布就构成了生命的密码。为它具有如下特性： (1)不同物种的 DNA 具有独特的碱基序列组成，因此可以通过 DNA 检验进行种属区分。 (2)除了同卵双生个体，每个人的 D"},{"q":"2、DNA 的结构","s":"（1）法医DNA 发展概況及基本理论","a":"①DNA分子由两条反向平行的多聚核苷酸链组成，一条从 5'到 3',另一条从 3'到 5'。 ②脱氧核糖—磷酸是双链的骨架，居于螺旋外侧，每个碱基与对侧链上的碱基通过氢键相连 互相配对。 ③氢键维持双螺旋结构的横向稳定性，碱基平面之间的碱基堆积力维持双螺旋的纵向稳定性。 ④碱基配对的方式：A 与 T"},{"q":"3、DNA 的理化性质","s":"（1）法医DNA 发展概況及基本理论","a":"DNA具有变性、复性和杂交等理化特性。 (3)DNA 的多态性 1、基因、等位基因和基因型。 一般来说，如果一个基因座有 n 个等位基因，那么纯合子基因型的个数为 n 个，杂合子基 因型的个数为 n(n-1)/2 个。如果某基因座有 10 个等位基因，理论上，该基因座有 10个纯 合子，[10×(1"},{"q":"3.发展情况和常用技术","s":"（1）法医DNA 发展概況及基本理论","a":"我国从 1986年开始进行 DNA 指纹技术研究，1988年开始实际案例应用，2000 年在公安 部开展的打击拐卖妇女儿童专项斗争中，DNA技术大规模使用并发挥了重要作用。 常用技术： (1)聚合酶链反应(PCR)技术 (2)荧光标记 STR复合扩增检验技术 (3)线粒体 DNA测序技术 (4)DN"},{"q":"1、基本概念","s":"（2）常见生物物证的发现、提取与送检","a":"来源于案(事)件现场，并可进行法医 DNA 检验，从而为侦查提供线索、为法庭提供证据的 生物样本，或含有、承载可进行法医 DNA检验的生物样品的物品，称为法医生物检材。 已知来源的、在法医 DNA 检验中用于比对参照的样品称作比对样本 从生物样品在载体上的附着部位附近空白处提取的样品称为对照样本 是"},{"q":"2、生物物证的发现、提取、这基本原则","s":"（2）常见生物物证的发现、提取与送检","a":"需要遵循的基本原则如下： ①法医生物检材提取应由具有专门知识、接受过相关培训且具有现场勘验、检查资格的现场 勘验、检查人员进行。 ②提取检材时使用的试剂应经去核酸处理，转移用载体应经过无菌处理，封装用容器、非一 次性器械应保持洁净。禁止重复使用一次性器械。 ③提取检材时使用的试剂应标明有效期，并在有"},{"q":"3、生物物证的发现","s":"（2）常见生物物证的发现、提取与送检","a":"(1)常见生物物证的发现 (2)潜在生物物证的发现 光学法是一种快速、无损、搜索范围广泛的检测方法，在犯罪现场勘查中常常作为发现 潜在生物物证的首选方法。 鲁米诺,又名发光氨。可以发现经过擦洗或陈旧的血痕毛巾、衣物等大件物体上的可疑 唾液斑可以通过试纸检测 (3)动物、植物物证的发现"},{"q":"4、生物物证的提取","s":"（2）常见生物物证的发现、提取与送检","a":"(一)斑迹类检材的提取 1.易携带的带有斑迹的物品，应整件提取。 2.不易携带的带有斑迹的物品，根据物品质地的不同，可采取两步擦拭、剪切、刮削、吸附、 凿锯、挖取等方法提取上面的斑迹，应记录提取部位，可同时提 取对照样本。 3.在提取检材前后应进行照相或录像。 (二)液体类检材的提取 1.根据液体类"},{"q":"5、生物物证的包装、保存与送检","s":"（2）常见生物物证的发现、提取与送检","a":"(一)检材的包装 1.包装物应能保证检材在运送过程中避免互相摩擦、冲撞以及失落，防止易碎检材发生挤压 和震动。 2.盛放检材的容器使用前要保持洁净。 3.每份检材/比对样本都应独立包装，密封并在封装条上签上封装人姓名。 4.封装后，按要求填写物证标签，贴在包装物上，书写字迹工整，易于识别。 (二)检"},{"q":"1、个体识别","s":"（3）法医DNA 技术的应用","a":"(一)基本原理 法医 DNA 分析的一个最主要的用途就是进行个体识别和同一认定在保证受检验样本组 织无突变(癌症)的前提下，通过检验一系列 DNA 遗传标记，比较不同样本之间的 DNA分型 是否一致，判断样本是否来自同一个体。 (二)应用情况"},{"q":"2、亲子鉴定","s":"（4）法医 DNA 数据库的应用；","a":"(1)基本概念 是通过对人类遗传标记的检测，根据遗传规律分析，对有争议的父母与子女血缘关系的 鉴定。 (2)基本原理 在没有基因突变的情况下，亲子鉴定基于两个原理：孩子的两个等位基因必定分别来源 于父亲和母亲；孩子不可能带有父母均没有的等位基因。 (3)亲子鉴定标准 非父排除率(CPE)、RCP值或"},{"q":"3、Y 染色体检验与家系分析","s":"（4）法医 DNA 数据库的应用；","a":"Y染色体具有父系单倍体遗传的特征，目前法医经常使用 Y-STR 进行父系亲缘关系相关的检 验与调查。具体包括： (一)混合样本检验 (二)亲权鉴定 (三)父系家系排查 大致流程包括： 1.划定排查范围。 2.摸清男性人员情况。 3.构建家系图谱。 4.采集代表样本。 5.STR检验和比对。 (四)线"},{"q":"4、灾难（事件）遇难者个体识别","s":"（4）法医 DNA 数据库的应用；","a":"灾难(事件)遇难者个体识别 DVI 一般是指由于灾难导致的群体死亡事件中遇难者的个 体识别。灾难事件可以分为自然灾害(地震、海啸、飓风等)和人为灾害(空难、海难、爆炸 等)。"},{"q":"5.法医表型特征分子刻画（书）","s":"（4）法医 DNA 数据库的应用；","a":""}]}]};
+
+/* ================= 怪物库（按关卡循环，逐步变强） ================= */
+var MONSTERS=[
+  {name:'遗忘史莱姆', emoji:'🦠', color:'#7ec96f'},
+  {name:'分心小蝙蝠', emoji:'🦇', color:'#8a7fd6'},
+  {name:'健忘小树懒', emoji:'🦥', color:'#c9a06f'},
+  {name:'马虎小狐妖', emoji:'🦊', color:'#e0876f'},
+  {name:'拖延大章鱼', emoji:'🐙', color:'#d66f9a'},
+  {name:'瞌睡大懒龙', emoji:'🐲', color:'#6f9fd6'},
+  {name:'焦虑大魔王', emoji:'👹', color:'#b0607a'}
+];
+
+/* ================= 预设角色与配色 ================= */
+var ACCESSORIES=['🎓','👑','🎀','🕶️','⭐','🌸','🏅','🪄','💗','🍀','🐟','🎒'];
+
+/* ================= 台词 ================= */
+var LINES={
+  greet:['你好呀！我是你的督学 <b>%n</b>，一起上岸打怪吧！','我是 <b>%n</b>，今天也要加油背书哦！','<b>%n</b> 已上线！遗忘怪物一个都别想跑～'],
+  home:['选一个关卡开打吧，我会盯着你背书的！','背书一分钟，上岸进一步，冲！','今天也要元气满满地学习呀～'],
+  study:['先把这些知识点背熟，等一下好打怪！','翻面看一看，记牢再进入战斗哦！','背得越熟，打得越爽！'],
+  fight:['战斗开始！答对=攻击，答错会被反击哦！','加油！每张卡都是一个知识点小怪！','集中注意力，别让怪物得逞！'],
+  got:['漂亮！就是这么背的！','答对了！继续连击！','记忆超群，怪物怕了怕了～'],
+  miss:['哎呀，这道再记记，不慌！','没记住没关系，它跑不掉，再背！','稳住，深呼吸，下次一定！'],
+  win:['太棒了！打败怪物，离上岸更近了！','通关啦！你就是背书战神！','厉害！经验金币都到手，继续冲！'],
+  lose:['别灰心，休息一下再挑战，我陪你！','失败了也能再来，背书就是重复！','血量没啦，回去养精蓄锐再战！'],
+  lvlup:['恭喜升级！你越来越强啦！','升级啦！血量攻击都提升，帅！','等级 up！上岸稳了！'],
+  lowhp:['血量告急！快用回血药水！','小心！再用一次「记住」就能翻盘！'],
+  combo:['连击！势不可挡！','手感来了，继续输出！']
+};
+
+/* ================= 游戏状态 ================= */
+var deck=null;
+var S=null;          // 存档（玩家+角色+进度）
+var temp=null;       // 战斗/学习临时状态
+var boss=null;       // 当前怪物
+var flipped=false;
+var audioCtx=null;
+
+function defaultSave(){
+  return {
+    name:'小鱼儿', avatar:'🐟', color:'#6aa8ff', hat:'', img:'xiaoyuer.png',
+    lv:1, exp:0, hp:20, maxHp:20, atk:5, gold:20,
+    stars:[], unlocked:1, accUnlocked:[], accWorn:-1
+  };
+}
+function expNeed(lv){return 40 + (lv-1)*20;}
+function titleOf(lv){
+  var t=['上岸学徒','背书新手','记忆小兵','知识勇士','背诵骑士','记忆大师','上岸宗师','研霸传奇'];
+  return t[Math.min(lv-1, t.length-1)];
+}
+
+/* ================= 音效 ================= */
+function ensureAudio(){
+  try{
+    if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}
+    if(audioCtx && audioCtx.state==='suspended')audioCtx.resume();
+  }catch(e){}
+}
+function tone(freq,dur,type,vol,delay){
+  try{
+    ensureAudio(); if(!audioCtx)return;
+    var t=audioCtx.currentTime+(delay||0);
+    var o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.2,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
+}
+function sfxGot(){tone(660,0.12,'triangle',0.25);tone(880,0.14,'triangle',0.25,0.08);}
+function sfxMiss(){tone(220,0.2,'sawtooth',0.2);tone(160,0.25,'sawtooth',0.18,0.1);}
+function sfxFlip(){tone(520,0.06,'sine',0.12);}
+function sfxWin(){tone(523,0.14,'triangle',0.25);tone(659,0.14,'triangle',0.25,0.12);tone(784,0.22,'triangle',0.25,0.24);}
+function sfxLvlup(){tone(523,0.1,'square',0.15);tone(659,0.1,'square',0.15,0.09);tone(784,0.1,'square',0.15,0.18);tone(1046,0.2,'square',0.18,0.27);}
+function sfxCoin(){tone(1046,0.08,'square',0.15);tone(1318,0.12,'square',0.15,0.07);}
+
+/* ================= 角色（小鱼儿） ================= */
+function say(text,lineKey){
+  var name=esc(S.name);
+  if(lineKey){text=rand(LINES[lineKey]).replace(/%n/g,name);}
+  $('bubbleText').innerHTML=text;
+}
+function renderHero(){
+  var box=$('avatarBox');
+  $('heroName').textContent=S.name;
+  var worn=(S.accWorn>=0&&S.accWorn<ACCESSORIES.length)?ACCESSORIES[S.accWorn]:'';
+  box.style.background=S.color;
+  box.innerHTML='<img src="'+S.img+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\';var f=document.getElementById(\'avatarFace\');if(f)f.style.display=\'\';">'
+    +'<span id="avatarFace" style="font-size:32px;display:none;">'+S.avatar+'</span>'
+    +'<span class="hat" id="avatarHat">'+worn+'</span>';
+}
+
+/* ================= 视图切换 ================= */
+function show(id){
+  var vs=document.querySelectorAll('.view');
+  for(var i=0;i<vs.length;i++)vs[i].classList.remove('active');
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ================= 渲染地图 ================= */
+function renderPanel(){
+  $('pLv').textContent='Lv.'+S.lv+' '+titleOf(S.lv);
+  $('pGold').textContent=S.gold;
+  $('pHp').textContent=S.hp; $('pMaxHp').textContent=S.maxHp; $('pAtk').textContent=S.atk;
+  $('pBarHp').style.width=clamp(S.hp/S.maxHp*100,0,100)+'%';
+  $('pExp').textContent=S.exp; $('pExpNeed').textContent=expNeed(S.lv);
+  $('pBarExp').style.width=clamp(S.exp/expNeed(S.lv)*100,0,100)+'%';
+  var st=0; for(var i=0;i<S.stars.length;i++)st+=S.stars[i];
+  $('pStars').textContent=st;
+}
+function renderLevels(){
+  var list=$('levelList'); list.innerHTML='';
+  $('deckTitle').textContent=deck.title;
+  for(var i=0;i<deck.levels.length;i++){
+    var m=MONSTERS[i%MONSTERS.length];
+    var stars=S.stars[i]||0;
+    var unlocked=i < S.unlocked;
+    var current=i===S.unlocked-1;
+    var item=document.createElement('div');
+    item.className='lv-item'+(unlocked?'':' locked')+(current?' current':'');
+    var starHtml='';
+    for(var s=0;s<3;s++)starHtml+='<span class="'+(s<stars?'on':'')+'">★</span>';
+    item.innerHTML=
+      '<div class="monster" style="background:'+m.color+'33;">'+m.emoji+'</div>'+
+      '<div class="lv-info"><div class="t">'+esc(deck.levels[i].title)+'</div>'+
+      '<div class="s">'+m.name+' · '+deck.levels[i].cards.length+' 张卡</div></div>'+
+      '<div class="lv-stars">'+starHtml+'</div>'+
+      '<div class="lv-go">'+(unlocked?'进入 →':'🔒')+'</div>';
+    if(unlocked){
+      item.onclick=(function(idx){ return function(){ startLevel(idx); }; })(i);
+    }else{
+      item.onclick=function(){ say('这一关还没解锁，先通关前面的关卡吧！'); };
+    }
+    list.appendChild(item);
+  }
+}
+function renderHome(){
+  renderPanel(); renderLevels();
+  say(null,'home');
+}
+
+/* ================= 开始关卡：学习阶段 ================= */
+function startLevel(i){
+  if(i>=deck.levels.length)return;
+  temp={level:i, studyIdx:0, pool:null, combo:0, hp:S.hp, bossHp:0, bossMax:0};
+  var lv=deck.levels[i];
+  var m=MONSTERS[i%MONSTERS.length];
+  boss={name:m.name, emoji:m.emoji, color:m.color, atk:2+Math.floor(i/2)};
+  // 学习阶段
+  $('studyLv').textContent=i+1;
+  temp.studyIdx=0;
+  renderStudy();
+  show('view-study');
+  say(null,'study');
+}
+function renderStudy(){
+  var lv=deck.levels[temp.level];
+  var idx=temp.studyIdx;
+  var c=lv.cards[idx];
+  $('studyCount').textContent=(idx+1)+'/'+lv.cards.length;
+  $('studyQ').textContent=c.q;
+  $('studyA').textContent=c.a||'（本题无参考答案，请回忆该知识点的具体内容）';
+  $('studySec').textContent=c.s?('📂 '+c.s):'';
+  $('studySec').style.display=c.s?'':'none';
+  flipped=false; $('flipCard').classList.remove('on');
+  var dots=$('studyDots'); dots.innerHTML='';
+  for(var i=0;i<lv.cards.length;i++){
+    var d=document.createElement('span');
+    d.className='dot'+(i<idx?' done':(i===idx?' cur':''));
+    dots.appendChild(d);
+  }
+}
+
+/* ================= 战斗 ================= */
+function enterBattle(){
+  var lv=deck.levels[temp.level];
+  temp.hp=S.hp;
+  temp.combo=0;
+  temp.pool=[]; for(var i=0;i<lv.cards.length;i++)temp.pool.push(i);
+  temp.bossMax=lv.cards.length*2; temp.bossHp=temp.bossMax;
+  flipped=false; $('battleFlip').classList.remove('on');
+  $('bossEmoji').textContent=boss.emoji;
+  $('bossName').textContent=boss.name;
+  $('totalCards').textContent=lv.cards.length;
+  updateBattleHUD();
+  nextBattleCard();
+  show('view-battle');
+  say(null,'fight');
+}
+function nextBattleCard(){
+  var lv=deck.levels[temp.level];
+  if(temp.pool.length===0){ winLevel(); return; }
+  var idx=temp.pool[Math.floor(Math.random()*temp.pool.length)];
+  temp.curIdx=idx;
+  var c=lv.cards[idx];
+  $('battleQ').textContent=c.q;
+  $('battleA').textContent=c.a||'（本题无参考答案，请回忆该知识点的具体内容）';
+  $('battleSec').textContent=c.s?('📂 '+c.s):'';
+  $('battleSec').style.display=c.s?'':'none';
+  flipped=false; $('battleFlip').classList.remove('on');
+  $('btnGot').disabled=true; $('btnMiss').disabled=true;
+}
+function updateBattleHUD(){
+  var lv=deck.levels[temp.level];
+  $('remainCards').textContent=temp.pool.length;
+  $('bossBar').style.width=clamp(temp.bossHp/temp.bossMax*100,0,100)+'%';
+  $('comboN').textContent=temp.combo;
+  $('battleHpTxt').textContent=temp.hp+'/'+S.maxHp;
+  $('pBarHp2').style.width=clamp(temp.hp/S.maxHp*100,0,100)+'%';
+  $('itemHeal').disabled=temp.hp>=S.maxHp||S.gold<5;
+  $('itemKill').disabled=S.gold<10;
+}
+function floatTxt(x,y,txt,color){
+  var el=document.createElement('div');
+  el.className='float-txt'; el.textContent=txt; el.style.color=color;
+  el.style.left=x+'px'; el.style.top=y+'px';
+  $('floatLayer').appendChild(el);
+  setTimeout(function(){el.remove();},1000);
+}
+function onGot(){
+  var lv=deck.levels[temp.level];
+  temp.combo++;
+  var dmg=2; var crit=false;
+  var critRate=5+S.atk*2;
+  if(Math.random()*100<critRate){crit=true;dmg=3;}
+  temp.bossHp=Math.max(0,temp.bossHp-dmg);
+  // 从池中移除当前卡
+  var p=temp.pool.indexOf(temp.curIdx); if(p>=0)temp.pool.splice(p,1);
+  sfxGot();
+  var rect=$('bossEmoji').getBoundingClientRect();
+  floatTxt(rect.left+20,rect.top-10,(crit?'暴击 -':'')+dmg,crit?'#ff5d6c':'#2fbf71');
+  var lines=temp.combo>=3?say(null,'combo'):say(null,'got');
+  updateBattleHUD();
+  if(temp.pool.length===0){ winLevel(); }
+  else{ nextBattleCard(); }
+}
+function onMiss(){
+  var p=temp.pool.indexOf(temp.curIdx);
+  temp.hp=Math.max(0,temp.hp-boss.atk);
+  temp.combo=0;
+  sfxMiss();
+  var rect=$('avatarBox').getBoundingClientRect();
+  floatTxt(rect.left+20,rect.top+50,'-'+boss.atk+' ❤️','#ff5d6c');
+  say(null,'miss');
+  if(temp.hp<=0){ loseLevel(); return; }
+  if(temp.hp<=S.maxHp*0.3){ say('血量告急！快用回血药水！','lowhp'); }
+  updateBattleHUD();
+  nextBattleCard();
+}
+function useHeal(){
+  if(S.gold<5||temp.hp>=S.maxHp)return;
+  S.gold-=5; temp.hp=Math.min(S.maxHp,temp.hp+6);
+  sfxCoin(); updateBattleHUD();
+  say('喝下药水，回满精神！继续战斗！');
+}
+function useKill(){
+  if(S.gold<10)return;
+  S.gold-=10;
+  var p=temp.pool.indexOf(temp.curIdx); if(p>=0)temp.pool.splice(p,1);
+  temp.bossHp=Math.max(0,temp.bossHp-2);
+  sfxGot();
+  floatTxt(window.innerWidth/2,window.innerHeight/2,'⚡ 秒杀！','#ffb020');
+  updateBattleHUD();
+  if(temp.pool.length===0){ winLevel(); }
+  else{ nextBattleCard(); }
+}
+function winLevel(){
+  sfxWin();
+  var lv=deck.levels[temp.level];
+  var remainHearts=temp.hp;
+  var stars=remainHearts>S.maxHp*0.66?3:(remainHearts>S.maxHp*0.33?2:1);
+  if(!S.stars[temp.level]||stars>S.stars[temp.level])S.stars[temp.level]=stars;
+  var expGain=15+lv.cards.length*2;
+  var goldGain=8+lv.cards.length;
+  S.gold+=goldGain; S.hp=remainHearts;
+  var lvlups=[];
+  S.exp+=expGain;
+  while(S.exp>=expNeed(S.lv)){
+    S.exp-=expNeed(S.lv); S.lv++; S.maxHp+=5; S.atk+=1; S.hp=S.maxHp;
+    lvlups.push(S.lv); sfxLvlup();
+  }
+  S.unlocked=Math.max(S.unlocked, Math.min(temp.level+2, deck.levels.length));
+  // 解锁配饰
+  var newAcc=[];
+  if(temp.level<ACCESSORIES.length && S.accUnlocked.indexOf(temp.level)<0){
+    S.accUnlocked.push(temp.level); newAcc.push(temp.level);
+  }
+  if(temp.level+1>=deck.levels.length && S.accUnlocked.indexOf(ACCESSORIES.length-1)<0){
+    S.accUnlocked.push(ACCESSORIES.length-1); newAcc.push(ACCESSORIES.length-1);
+  }
+  save(LS_SAVE,S); save(LS_DECK,deck);
+  say(null,'win');
+  renderResult(true,stars,expGain,goldGain,lvlups,newAcc);
+  show('view-result');
+  if(lvlups.length)say(null,'lvlup');
+}
+function loseLevel(){
+  sfxMiss();
+  S.hp=S.maxHp; // 失败后回满血，允许重试
+  save(LS_SAVE,S);
+  say(null,'lose');
+  renderResult(false,0,0,0,[]);
+  show('view-result');
+}
+function renderResult(win,stars,expGain,goldGain,lvlups,newAcc){
+  var box=$('resultBox');
+  if(win){
+    var starHtml='';
+    for(var s=0;s<3;s++)starHtml+='<span class="stars '+(s<stars?'on':'')+'">★</span>';
+    var up='';
+    for(var i=0;i<lvlups.length;i++)up+='<div class="lvlup">🎉 升级啦！达到 Lv.'+lvlups[i]+'（生命+5、攻击+1，回满血）</div>';
+    var acc='';
+    for(var j=0;j<(newAcc||[]).length;j++)acc+='<div class="lvlup" style="background:#eef6ff;border-color:#4f9bff;">🎁 解锁新配饰 '+ACCESSORIES[newAcc[j]]+'（到「配饰」给小鱼儿戴上）</div>';
+    box.innerHTML='<div class="big">'+boss.emoji+'</div><h3>🎊 战胜 '+esc(boss.name)+'！</h3>'+
+      '<div>'+starHtml+'</div>'+
+      '<div class="gain">获得 <b>+' + expGain + ' 经验</b> · <b>+' + goldGain + ' 金币</b></div>'+acc+up;
+    $('resultNext').style.display='';
+    $('resultNext').textContent= temp.level+1<deck.levels.length ? '▶️ 下一关':'🏆 全部通关！';
+  }else{
+    box.innerHTML='<div class="big">😵</div><h3>血量耗尽…</h3><div class="gain">别灰心，'+esc(boss.name)+'还没被打败。<br>再背一遍，小鱼儿陪你再来！</div>';
+    $('resultNext').textContent='🔁 再挑战一次';
+  }
+}
+function resultNext(){
+  if($('resultNext').textContent.indexOf('再挑战')>=0){ enterBattle(); return; }
+  if(temp.level+1<deck.levels.length){ startLevel(temp.level+1); }
+  else{ show('view-home'); renderHome(); say('太厉害了！你打通了全部关卡，成功上岸！🎓'); }
+}
+
+/* ================= 题库导入 ================= */
+function parseDeck(text,title){
+  var lines=text.split(/\r?\n/);
+  var chapters=[]; var cur={title:'默认章节',cards:[]}; chapters.push(cur);
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].trim();
+    if(!line)continue;
+    if(line.charAt(0)==='#'){
+      cur={title:line.slice(1).trim()||'章节'+(chapters.length+1),cards:[]};
+      chapters.push(cur); continue;
+    }
+    var sep=line.indexOf('|');
+    var q,a;
+    if(sep>=0){ q=line.slice(0,sep).trim(); a=line.slice(sep+1).trim(); }
+    else{
+      var t=line.indexOf('\t');
+      if(t>=0){ q=line.slice(0,t).trim(); a=line.slice(t+1).trim(); }
+      else continue;
+    }
+    if(q&&a)cur.cards.push({q:q,a:a});
+  }
+  chapters=chapters.filter(function(c){return c.cards.length>0;});
+  if(chapters.length===0)return null;
+  // 每 8 张一关
+  var levels=[];
+  chapters.forEach(function(ch){
+    for(var i=0;i<ch.cards.length;i+=8){
+      levels.push({title:(chapters.length>1?ch.title+' ':'')+(i/8+1)+'关',cards:ch.cards.slice(i,i+8)});
+    }
+  });
+  // 关卡标题加上怪物名
+  levels.forEach(function(lv,idx){
+    var m=MONSTERS[idx%MONSTERS.length];
+    lv.title=lv.title.replace(/关$/,'')+' · '+m.name;
+  });
+  return {title:title||'我的题库',levels:levels};
+}
+
+/* ================= 配饰界面 ================= */
+function renderAccessories(){
+  var box=$('accChoices'); box.innerHTML='';
+  ACCESSORIES.forEach(function(a,i){
+    var unlocked=S.accUnlocked.indexOf(i)>=0;
+    var el=document.createElement('div');
+    el.className='av'+(S.accWorn===i?' sel':'');
+    el.style.background= unlocked ? '#fff' : '#eef1f8';
+    el.style.filter= unlocked ? 'none' : 'grayscale(1) opacity(.45)';
+    el.textContent= unlocked ? a : '🔒';
+    if(unlocked){
+      el.onclick=function(){
+        S.accWorn=(S.accWorn===i)?-1:i;
+        save(LS_SAVE,S); renderAccessories(); renderHero();
+      };
+    }
+    box.appendChild(el);
+  });
+  $('accCount').textContent=S.accUnlocked.length;
+  $('accTotal').textContent=ACCESSORIES.length;
+}
+
+/* ================= 初始化 ================= */
+function init(){
+  deck=load(LS_DECK)||DEFAULT_DECK;
+  S=load(LS_SAVE)||defaultSave();
+  if(!Array.isArray(S.stars))S.stars=[];
+  // 兼容：确保 S 字段完整
+  var d=defaultSave(); for(var k in d){ if(S[k]===undefined)S[k]=d[k]; }
+  renderHero();
+  renderHome();
+  bindEvents();
+  // 首次欢迎
+  if(!load(LS_SAVE)){
+    say(null,'greet');
+  }else{
+    say(null,'home');
+  }
+}
+function bindEvents(){
+  // 学习翻卡
+  $('flipCard').onclick=function(){flipped=!flipped;$('flipCard').classList.toggle('on',flipped);sfxFlip();};
+  $('studyPrev').onclick=function(){if(temp.studyIdx>0){temp.studyIdx--;renderStudy();}};
+  $('studyNext').onclick=function(){var lv=deck.levels[temp.level];if(temp.studyIdx<lv.cards.length-1){temp.studyIdx++;renderStudy();}};
+  $('studyFight').onclick=function(){enterBattle();};
+  $('studyBack').onclick=function(){show('view-home');renderHome();};
+  // 战斗翻卡
+  $('battleFlip').onclick=function(){
+    flipped=!flipped;$('battleFlip').classList.toggle('on',flipped);sfxFlip();
+    $('btnGot').disabled=!flipped;$('btnMiss').disabled=!flipped;
+  };
+  $('btnGot').onclick=onGot;
+  $('btnMiss').onclick=onMiss;
+  $('itemHeal').onclick=useHeal;
+  $('itemKill').onclick=useKill;
+  $('battleQuit').onclick=function(){show('view-home');renderHome();say('先撤退，背熟了再来挑战！');};
+  // 结算
+  $('resultHome').onclick=function(){show('view-home');renderHome();};
+  $('resultNext').onclick=resultNext;
+  // 首页按钮
+  $('btnImport').onclick=function(){show('view-import');};
+  $('btnAvatar').onclick=function(){renderAccessories();show('view-avatar');};
+  // 导入
+  $('importSave').onclick=function(){
+    var t=$('importText').value.trim();
+    if(!t){say('还没有粘贴内容哦，先把题目答案贴进来～');return;}
+    var d=parseDeck(t,$('importTitle').value.trim());
+    if(!d){say('没解析到有效卡片，请确认每行是「题目|答案」格式哦～');return;}
+    if(confirm('导入新题库会重置关卡进度，确定继续吗？')){
+      deck=d; S.stars=[]; S.unlocked=1; S.hp=S.maxHp;
+      save(LS_DECK,deck); save(LS_SAVE,S);
+      show('view-home');renderHome();
+      say('题库导入成功！共 '+d.levels.length+' 关，开背吧！');
+    }
+  };
+  $('importDemo').onclick=function(){
+    deck=DEFAULT_DECK; S.stars=[]; S.unlocked=1; S.hp=S.maxHp;
+    save(LS_DECK,deck); save(LS_SAVE,S);
+    $('importTitle').value='我的专业课题库'; $('importText').value='';
+    show('view-home');renderHome();
+    say('已恢复示例题库，快开始闯关吧！');
+  };
+  $('importBack').onclick=function(){show('view-home');renderHome();};
+  // 配饰
+  $('accBack').onclick=function(){show('view-home');renderHome();};
+  // 全局首次点击启动音频
+  document.addEventListener('click',ensureAudio);
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
